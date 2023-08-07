@@ -40,6 +40,7 @@ class Operate:
                         'output': False,
                         'save_inference': False,
                         'save_image': False}
+        
         self.quit = False
         self.pred_fname = ''
         self.request_recover_robot = False
@@ -53,6 +54,10 @@ class Operate:
         self.start_time = time.time()
         self.control_clock = time.time()
         self.bg = pygame.image.load('pics/gui_mask.jpg')
+
+        # Define the maximum speed value
+        self.max_speed = 4  # Adjust this value according to the robot's capabilities
+
 
     # wheel control
     def control(self):    
@@ -142,16 +147,27 @@ class Operate:
             ############### add your codes below ###############
             # drive forward
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                pass # TODO: replace with your code to make the robot drive forward
+                self.command['motion'][0] = self.max_speed
             # drive backward
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                pass # TODO: replace with your code to make the robot drive backward
+                self.command['motion'][0] = -self.max_speed
             # turn left
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                pass # TODO: replace with your code to make the robot turn left
+                self.command['motion'][1] = self.max_speed
             # drive right
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                pass # TODO: replace with your code to make the robot turn right
+                self.command['motion'][1] = -self.max_speed
+
+            # Variable speed control
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+                self.max_speed = 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                self.max_speed = 2
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                self.max_speed = 3
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+                self.max_speed = 4
+
             ####################################################
             # stop
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -183,6 +199,9 @@ if __name__ == "__main__":
     TITLE_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 35)
     TEXT_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 40)
     
+    # Create a Clock object to control the frame rate
+    clock = pygame.time.Clock()
+
     width, height = 700, 660
     canvas = pygame.display.set_mode((width, height))
     pygame.display.set_caption('ECE4078 Lab')
@@ -213,6 +232,9 @@ if __name__ == "__main__":
     operate = Operate(args)
 
     while start:
+        # Time normalization - Limit the loop to run at 30 frames per second (adjust as needed)
+        clock.tick(30)
+
         operate.update_keyboard()
         operate.take_pic()
         drive_meas = operate.control()
