@@ -107,6 +107,18 @@ class Operate:
         self.draw_pygame_window(canvas, robot_view, 
                                 position=(h_pad, v_pad)
                                 )
+        
+        # Display current motion command
+        motion_str = f'Motion: {self.command["motion"][0]}, {self.command["motion"][1]}'
+        motion_surface = TEXT_FONT.render(motion_str, False, (255, 255, 255))
+        canvas.blit(motion_surface, (h_pad + 10, v_pad+10))
+
+        # Display current speed setting
+        speed_str = f'Speed: {self.max_speed}'
+        speed_surface = TEXT_FONT.render(speed_str, False, (255, 255, 255))
+        canvas.blit(speed_surface, (h_pad + 10, v_pad+50))
+
+
         # space to add M2 and M3 monitor views
         self.put_caption(canvas, caption='SLAM (M2)', position=(2*h_pad+320, v_pad)) # M2
         self.put_caption(canvas, caption='Detector (M3)',
@@ -148,16 +160,23 @@ class Operate:
             # drive forward
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 self.command['motion'][0] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_UP:
+                self.command['motion'][0] = 0
             # drive backward
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 self.command['motion'][0] = -self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
+                self.command['motion'][0] = 0
             # turn left
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 self.command['motion'][1] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+                self.command['motion'][1] = 0
             # drive right
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 self.command['motion'][1] = -self.max_speed
-
+            elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+                self.command['motion'][1] = 0
             # Variable speed control
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
                 self.max_speed = 1
