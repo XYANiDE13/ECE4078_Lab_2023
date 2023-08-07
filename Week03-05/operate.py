@@ -69,6 +69,9 @@ class Operate:
         self.aruco_img = np.zeros([240,320,3], dtype=np.uint8)
         self.bg = pygame.image.load('pics/gui_mask.jpg')
 
+        # Define the maximum speed value
+        self.max_speed = 4  # Adjust this value according to the robot's capabilities
+
     # wheel control
     def control(self):    
         if args.play_data:
@@ -159,6 +162,17 @@ class Operate:
         self.draw_pygame_window(canvas, robot_view, 
                                 position=(h_pad, v_pad)
                                 )
+        
+        # Display current motion command
+        motion_str = f'Motion: {self.command["motion"][0]}, {self.command["motion"][1]}'
+        motion_surface = TEXT_FONT.render(motion_str, False, (255, 255, 255))
+        canvas.blit(motion_surface, (h_pad + 10, v_pad+10))
+
+        # Display current speed setting
+        speed_str = f'Speed: {self.max_speed}'
+        speed_surface = TEXT_FONT.render(speed_str, False, (255, 255, 255))
+        canvas.blit(speed_surface, (h_pad + 10, v_pad+50))
+
 
         # canvas.blit(self.gui_mask, (0, 0))
         self.put_caption(canvas, caption='SLAM', position=(2*h_pad+320, v_pad)) # M2
@@ -200,16 +214,33 @@ class Operate:
             ########### replace with your M1 codes ###########
             # drive forward
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                pass # TODO: replace with your M1 code to make the robot drive forward
+                self.command['motion'][0] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_UP:
+                self.command['motion'][0] = 0
             # drive backward
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                pass # TODO: replace with your M1 code to make the robot drive backward
+                self.command['motion'][0] = -self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
+                self.command['motion'][0] = 0
             # turn left
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                pass # TODO: replace with your M1 code to make the robot turn left
+                self.command['motion'][1] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+                self.command['motion'][1] = 0
             # drive right
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                pass # TODO: replace with your M1 code to make the robot turn right
+                self.command['motion'][1] = -self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+                self.command['motion'][1] = 0
+            # Variable speed control
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+                self.max_speed = 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                self.max_speed = 2
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                self.max_speed = 3
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+                self.max_speed = 4
             ####################################################
             # stop
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -272,7 +303,10 @@ if __name__ == "__main__":
     pygame.font.init() 
     TITLE_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 35)
     TEXT_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 40)
-    
+        
+    # Create a Clock object to control the frame rate
+    clock = pygame.time.Clock()
+
     width, height = 700, 660
     canvas = pygame.display.set_mode((width, height))
     pygame.display.set_caption('ECE4078 Lab')
@@ -303,6 +337,9 @@ if __name__ == "__main__":
     operate = Operate(args)
 
     while start:
+        # Time normalization - Limit the loop to run at 30 frames per second (adjust as needed)
+        clock.tick(30)
+
         operate.update_keyboard()
         operate.take_pic()
         drive_meas = operate.control()
