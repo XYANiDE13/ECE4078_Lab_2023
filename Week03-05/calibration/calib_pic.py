@@ -15,6 +15,8 @@ class calibration:
         self.pibot = PenguinPi(args.ip, args.port)
         self.img = np.zeros([240,320,3], dtype=np.uint8)
         self.command = {'motion':[0, 0], 'image': False}
+        # Define the maximum speed value
+        self.max_speed = 4  # Adjust this value according to the robot's capabilities
         self.finish = False
 
     def image_collection(self, dataDir, images_to_collect):
@@ -85,6 +87,9 @@ if __name__ == "__main__":
     if not os.path.exists(dataDir):
         os.makedirs(dataDir)
     
+    # Create a Clock object to control the frame rate
+    clock = pygame.time.Clock()
+
     images_to_collect = 1
 
     calib = calibration(args)
@@ -99,7 +104,9 @@ if __name__ == "__main__":
     print('Collecting {} images for camera calibration.'.format(images_to_collect))
     print('Press ENTER to capture image.')
     while not calib.finish:
-        
+        # Time normalization - Limit the loop to run at 30 frames per second (adjust as needed)
+        clock.tick(30)
+
         calib.update_keyboard()
         calib.control()
         calib.take_pic()
