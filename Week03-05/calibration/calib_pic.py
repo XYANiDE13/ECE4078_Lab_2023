@@ -29,18 +29,36 @@ class calibration:
     def update_keyboard(self):
         for event in pygame.event.get():
             ########### replace with your M1 codes ###########
+            ############### add your codes below ###############
             # drive forward
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                pass # TODO: replace with your M1 code to make the robot drive forward
+                self.command['motion'][0] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_UP:
+                self.command['motion'][0] = 0
             # drive backward
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                pass # TODO: replace with your M1 code to make the robot drive backward
+                self.command['motion'][0] = -self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
+                self.command['motion'][0] = 0
             # turn left
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                pass # TODO: replace with your M1 code to make the robot turn left
+                self.command['motion'][1] = self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+                self.command['motion'][1] = 0
             # drive right
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                pass # TODO: replace with your M1 code to make the robot turn right
+                self.command['motion'][1] = -self.max_speed
+            elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+                self.command['motion'][1] = 0
+            # Variable speed control
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+                self.max_speed = 1
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                self.max_speed = 2
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                self.max_speed = 3
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+                self.max_speed = 4
             ####################################################
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.command['motion'] = [0, 0]
