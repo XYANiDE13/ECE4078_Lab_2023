@@ -15,15 +15,13 @@ class calibration:
         self.pibot = PenguinPi(args.ip, args.port)
         self.img = np.zeros([240,320,3], dtype=np.uint8)
         self.command = {'motion':[0, 0], 'image': False}
-        # Define the maximum speed value
-        self.max_speed = 4  # Adjust this value according to the robot's capabilities
         self.finish = False
 
     def image_collection(self, dataDir, images_to_collect):
         if self.command['image']:
             for i in range(images_to_collect):
                 image = self.pibot.get_image()
-                filename = "calib_{}.png".format(i)
+                filename = "images/calib_{}.png".format(i)
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(filename, image)
             self.finish = True
@@ -31,36 +29,26 @@ class calibration:
     def update_keyboard(self):
         for event in pygame.event.get():
             ########### replace with your M1 codes ###########
-            ############### add your codes below ###############
             # drive forward
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                self.command['motion'][0] = self.max_speed
+                self.command['motion'][0] = 1
             elif event.type == pygame.KEYUP and event.key == pygame.K_UP:
                 self.command['motion'][0] = 0
             # drive backward
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                self.command['motion'][0] = -self.max_speed
+                self.command['motion'][0] = -1
             elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
                 self.command['motion'][0] = 0
             # turn left
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                self.command['motion'][1] = self.max_speed
+                self.command['motion'][1] = 1
             elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
                 self.command['motion'][1] = 0
             # drive right
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                self.command['motion'][1] = -self.max_speed
+                self.command['motion'][1] = -1
             elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
                 self.command['motion'][1] = 0
-            # Variable speed control
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-                self.max_speed = 1
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                self.max_speed = 2
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
-                self.max_speed = 3
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_4:
-                self.max_speed = 4
             ####################################################
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.command['motion'] = [0, 0]
@@ -87,9 +75,6 @@ if __name__ == "__main__":
     if not os.path.exists(dataDir):
         os.makedirs(dataDir)
     
-    # Create a Clock object to control the frame rate
-    clock = pygame.time.Clock()
-
     images_to_collect = 1
 
     calib = calibration(args)
@@ -104,9 +89,7 @@ if __name__ == "__main__":
     print('Collecting {} images for camera calibration.'.format(images_to_collect))
     print('Press ENTER to capture image.')
     while not calib.finish:
-        # Time normalization - Limit the loop to run at 30 frames per second (adjust as needed)
-        clock.tick(30)
-
+        
         calib.update_keyboard()
         calib.control()
         calib.take_pic()

@@ -68,9 +68,9 @@ class Operate:
         self.img = np.zeros([240,320,3], dtype=np.uint8)
         self.aruco_img = np.zeros([240,320,3], dtype=np.uint8)
         self.bg = pygame.image.load('pics/gui_mask.jpg')
-
+        
         # Define the maximum speed value
-        self.max_speed = 4  # Adjust this value according to the robot's capabilities
+        self.max_speed = 1  # Adjust this value according to the robot's capabilities
 
     # wheel control
     def control(self):    
@@ -162,7 +162,7 @@ class Operate:
         self.draw_pygame_window(canvas, robot_view, 
                                 position=(h_pad, v_pad)
                                 )
-        
+                
         # Display current motion command
         motion_str = f'Motion: {self.command["motion"][0]}, {self.command["motion"][1]}'
         motion_surface = TEXT_FONT.render(motion_str, False, (255, 255, 255))
@@ -172,7 +172,6 @@ class Operate:
         speed_str = f'Speed: {self.max_speed}'
         speed_surface = TEXT_FONT.render(speed_str, False, (255, 255, 255))
         canvas.blit(speed_surface, (h_pad + 10, v_pad+50))
-
 
         # canvas.blit(self.gui_mask, (0, 0))
         self.put_caption(canvas, caption='SLAM', position=(2*h_pad+320, v_pad)) # M2
@@ -299,14 +298,15 @@ if __name__ == "__main__":
     parser.add_argument("--save_data", action='store_true')
     parser.add_argument("--play_data", action='store_true')
     args, _ = parser.parse_known_args()
+
+    # Create a Clock object to control the frame rate
+    clock = pygame.time.Clock()
+
     
     pygame.font.init() 
     TITLE_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 35)
     TEXT_FONT = pygame.font.Font('pics/8-BitMadness.ttf', 40)
-        
-    # Create a Clock object to control the frame rate
-    clock = pygame.time.Clock()
-
+    
     width, height = 700, 660
     canvas = pygame.display.set_mode((width, height))
     pygame.display.set_caption('ECE4078 Lab')
