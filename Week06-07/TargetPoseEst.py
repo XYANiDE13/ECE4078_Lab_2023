@@ -35,10 +35,16 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     # there are 8 possible types of fruits and vegs
     ######### Replace with your codes #########
     # TODO: measure actual sizes of targets [width, depth, height] and update the dictionary of true target dimensions
-    target_dimensions_dict = {'orange': [1.0,1.0,1.0], 'lemon': [1.0,1.0,1.0], 
-                              'lime': [1.0,1.0,1.0], 'tomato': [1.0,1.0,1.0], 
-                              'capsicum': [1.0,1.0,1.0], 'potato': [1.0,1.0,1.0], 
-                              'pumpkin': [1.0,1.0,1.0], 'garlic': [1.0,1.0,1.0]}
+    target_dimensions_dict = {
+        'orange': [0.083, 0.083, 0.075],
+        'lemon': [0.055, 0.071, 0.054],
+        'lime': [0.054, 0.074, 0.052],
+        'tomato': [0.071, 0.069, 0.064],
+        'capsicum': [0.0725, 0.077, 0.095],
+        'potato': [0.076, 0.097, 0.06],
+        'pumpkin': [0.086, 0.082, 0.074],
+        'garlic': [0.066, 0.062, 0.072]
+}
     #########
 
     # estimate target pose using bounding box and robot pose
@@ -79,7 +85,59 @@ def merge_estimations(target_pose_dict):
 
     ######### Replace with your codes #########
     # TODO: replace it with a solution to merge the multiple occurrences of the same class type (e.g., by a distance threshold)
-    target_est = target_pose_dict
+    #threshold of 1 metre?
+    threshold = 1
+    #recognised fruits
+    processed = set()
+
+    #key 1 = current target, key 2 = next target
+    for key1, pose1 in target_pose_dict.items():
+        if key1 in processed:
+            continue
+
+        #determine current fruit
+        fruit_type1 = None
+        for fruit in TARGET_TYPES:
+            if fruit in key1:
+                fruit_type1 = fruit
+                break
+        if not fruit_type1:
+            continue
+
+        #position of current fruit
+        x1, y1 = pose1['x'], pose1['y']
+        count = 1
+        total_x, total_y = x1, y1
+
+        for key2, pose2 in target_pose_dict.items():
+            if key1 == key2 or key2 in processed:
+                continue
+
+            #determine target fruit
+            fruit_type2 = None
+            for fruit in TARGET_TYPES:
+                if fruit in key2:
+                    fruit_type2 = fruit
+                    break
+
+            #compare current fruit with target fruit
+            if fruit_type1 != fruit_type2:
+                continue
+            
+            #position of target fruit
+            x2, y2 = pose2['x'], pose2['y']
+            distance = ((x2 - x1)**2 + (y2 - y1)**2)**0.5
+
+            if distance <= threshold:
+                count += 1
+                total_x += x2
+                total_y += y2
+                processed.add(key2)
+
+        avg_x = total_x / count
+        avg_y = total_y / count
+        target_est[key1] = {'x': avg_x, 'y': avg_y}
+        processed.add(key1)
     #########
    
     return target_est
